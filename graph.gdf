@@ -1,0 +1,11 @@
+nodedef> name VARCHAR,label VARCHAR
+0,v0
+1,v1
+2,v2
+3,v3
+4,v4
+edgedef> node1,node2,weight DOUBLE,directed BOOLEAN
+0,1,1.000000,false
+1,2,1.000000,false
+2,3,1.000000,false
+3,4,1.000000,false
