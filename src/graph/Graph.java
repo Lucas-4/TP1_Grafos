@@ -3,10 +3,7 @@ package graph;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Graph {
     private int numVertices;
@@ -34,14 +31,15 @@ public class Graph {
             System.out.println("");
             for (int j = 0; j < numVertices; j++) {
                 if (matriz[i][j] == null) {
-                    System.out.print(" X ");
+                    System.out.printf("%5s", "x");
                 } else if (isWeighted) {
-                    System.out.printf(" %.1f ", matriz[i][j].peso);
+                    System.out.printf("%5s", (int) matriz[i][j].peso);
                 } else {
-                    System.out.print(" 1 ");
+                    System.out.printf("%5s", "1");
                 }
             }
         }
+        System.out.println("");
     }
 
     /**
@@ -141,6 +139,16 @@ public class Graph {
         System.out.println(grau);
 
         return grau;
+    }
+
+    public void set(Aresta matriz[][]) {
+        this.numVertices = matriz.length;
+        this.matriz = new Aresta[numVertices][numVertices];
+        for (int i = 0; i < numVertices; i++) {
+            for (int j = 0; j < numVertices; j++) {
+                this.matriz[i][j] = matriz[i][j];
+            }
+        }
     }
 
     public int grauVerticeOut(int v) throws Exception {
@@ -387,5 +395,107 @@ public class Graph {
             }
         }
         printWriter.close();
+    }
+
+    public float[] dijkstra(int s) {
+        boolean visited[] = new boolean[numVertices];
+        float dist[] = new float[numVertices];
+        Set<Integer> q = new HashSet<>();
+        Integer pred[] = new Integer[numVertices];
+        // initialize variables
+        for (int i = 0; i < numVertices; i++) {
+            pred[i] = null;
+            visited[i] = false;
+            dist[i] = Float.POSITIVE_INFINITY;
+            q.add(i);
+        }
+        // set source vertex distance to 0
+        dist[s] = 0;
+
+        // variable used to find the vertex with minimum distance
+        float min = 0;
+
+        // vertex with minimum distance
+        int u = s;
+        while (!q.isEmpty()) {
+            // sets the vertex with minimum distance as the first unvisited vertex
+            for (int i = 0; i < numVertices; i++) {
+                if (!visited[i]) {
+                    min = dist[i];
+                    u = i;
+                    break;
+                }
+            }
+
+            // set u as the unvisited vertex with minimum distance
+            for (int i = 0; i < numVertices; i++) {
+                if (!visited[i] && dist[i] < min) {
+                    min = dist[i];
+                    u = i;
+                }
+            }
+            visited[u] = true;
+            q.remove(u);
+
+            //
+            for (int i = 0; i < numVertices; i++) {
+                if (!visited[i] && matriz[u][i] != null && (dist[u] + matriz[u][i].peso) < dist[i]) {
+                    dist[i] = dist[u] + matriz[u][i].peso;
+                    pred[i] = u;
+                }
+            }
+
+        }
+        return dist;
+    }
+
+    public void bellman_ford(int s) {
+        float dist[] = new float[numVertices];
+        Integer pred[] = new Integer[numVertices];
+
+        // i
+        for (int i = 0; i < numVertices; i++) {
+            dist[i] = Float.MAX_VALUE;
+            pred[i] = null;
+        }
+        dist[s] = 0;
+
+        for (int i = 1; i < numVertices; i++) {
+            for (int v = 0; v < numVertices; v++) {
+                for (int w = 0; w < numVertices; w++) {
+                    if (matriz[v][w] != null && (dist[v] + matriz[v][w].peso) < dist[w]) {
+                        dist[w] = dist[v] + matriz[v][w].peso;
+                        pred[w] = v;
+                    }
+                }
+            }
+        }
+
+    }
+
+    public void floyd_warshall() {
+        float dist[][] = new float[numVertices][numVertices];
+        for (int i = 0; i < numVertices; i++) {
+            for (int j = 0; j < numVertices; j++) {
+                if (i == j) {
+                    dist[i][j] = 0;
+                } else if (matriz[i][j] != null) {
+                    dist[i][j] = matriz[i][j].peso;
+                } else {
+                    dist[i][j] = Float.MAX_VALUE;
+                }
+            }
+
+        }
+
+        for (int k = 0; k < numVertices; k++) {
+            for (int i = 0; i < numVertices; i++) {
+                for (int j = 0; j < numVertices; j++) {
+                    if (dist[i][j] > dist[i][k] + dist[k][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,6 +1,6 @@
 package graph;
 
-class Aresta {
+public class Aresta {
 	public float peso;
 
 	public Aresta(float peso) {
