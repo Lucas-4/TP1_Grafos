@@ -12,12 +12,14 @@ public class Graph {
     private boolean isDirected;
     private boolean isWeighted;
     private int numArestas = 0;
+    private LinkedList<Aresta> edgeList;
 
     // construtor que recebe o número de vértices do grafo
     public Graph(int n, boolean isDirected, boolean isWeighted) {
         this.numVertices = n;
         this.isDirected = isDirected;
         this.isWeighted = isWeighted;
+        edgeList = new LinkedList<>();
         matriz = new Aresta[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -54,15 +56,20 @@ public class Graph {
     public void addAresta(int v1, int v2) throws InvalidOperationEx {
         if (matriz[v1][v2] != null)
             return;
+
         if (isWeighted) {
             throw new InvalidOperationEx(
                     "The graph is weighted, to create an edge you must pass the third argument 'peso'");
         }
+
         if (isDirected) {
-            matriz[v1][v2] = new Aresta();
+            edgeList.add(new Aresta(v1, v2));
+            matriz[v1][v2] = new Aresta(v1, v2);
         } else {
-            matriz[v1][v2] = new Aresta();
-            matriz[v2][v1] = new Aresta();
+            edgeList.add(new Aresta(v1, v2));
+            edgeList.add(new Aresta(v2, v1));
+            matriz[v1][v2] = new Aresta(v1, v2);
+            matriz[v2][v1] = new Aresta(v1, v2);
         }
         numArestas++;
     }
@@ -83,11 +90,12 @@ public class Graph {
                     "The graph is unweighted, to create an edge you must remove the third argument 'peso'");
         }
         if (isDirected) {
-            matriz[v1][v2] = new Aresta(peso);
+            matriz[v1][v2] = new Aresta(v1, v2, peso);
 
         } else {
-            matriz[v1][v2] = new Aresta(peso);
-            matriz[v2][v1] = new Aresta(peso);
+
+            matriz[v1][v2] = new Aresta(v1, v2, peso);
+            matriz[v2][v1] = new Aresta(v1, v2, peso);
         }
         numArestas++;
     }
@@ -122,7 +130,6 @@ public class Graph {
                 grau++;
             }
         }
-        System.out.println(grau);
         return grau;
     }
 
@@ -136,19 +143,8 @@ public class Graph {
                 grau++;
             }
         }
-        System.out.println(grau);
 
         return grau;
-    }
-
-    public void set(Aresta matriz[][]) {
-        this.numVertices = matriz.length;
-        this.matriz = new Aresta[numVertices][numVertices];
-        for (int i = 0; i < numVertices; i++) {
-            for (int j = 0; j < numVertices; j++) {
-                this.matriz[i][j] = matriz[i][j];
-            }
-        }
     }
 
     public int grauVerticeOut(int v) throws Exception {
@@ -161,11 +157,10 @@ public class Graph {
                 grau++;
             }
         }
-        System.out.println(grau);
-
         return grau;
     }
 
+    // retorna o grau do grafo
     public int grau() {
         System.out.println(numArestas * 2);
         return numArestas * 2;
@@ -437,7 +432,6 @@ public class Graph {
             visited[u] = true;
             q.remove(u);
 
-            //
             for (int i = 0; i < numVertices; i++) {
                 if (!visited[i] && matriz[u][i] != null && (dist[u] + matriz[u][i].peso) < dist[i]) {
                     dist[i] = dist[u] + matriz[u][i].peso;
@@ -453,7 +447,6 @@ public class Graph {
         float dist[] = new float[numVertices];
         Integer pred[] = new Integer[numVertices];
 
-        // i
         for (int i = 0; i < numVertices; i++) {
             dist[i] = Float.MAX_VALUE;
             pred[i] = null;
